@@ -12,18 +12,23 @@ import (
 type userHandler struct {
 	uc       usecase.UseCase
 	userRepo domain.UserRepository
+	gRouter  gin.IRouter
 }
 
-func NewUserHander(uc usecase.UseCase, userRepo domain.UserRepository) *userHandler {
-	return &userHandler{
+func NewUserHander(uc usecase.UseCase, userRepo domain.UserRepository, gRouter gin.IRouter) *userHandler {
+	h := &userHandler{
 		uc:       uc,
 		userRepo: userRepo,
+		gRouter:  gRouter,
 	}
+	gRouter.POST("/login", h.Login)
+	return h
 }
 
 func (u *userHandler) Login(c *gin.Context) {
-	ctx := context.TODO()
-	body := usecase.LoginRequest{}
+	ctx, cfn := context.WithCancel(c)
+	defer cfn()
+	var body usecase.LoginRequest
 
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, &ErrorResponse{
