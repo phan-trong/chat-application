@@ -29,11 +29,10 @@ func main() {
 		LoginUC: loginUC,
 	}
 
-	userHandler := httpport.NewUserHander(uc, ur)
-
 	r := gin.Default()
 	r.Use(middlewares.Logger())
-	r.POST("/login", userHandler.Login)
+	passportGroup := r.Group("/v1/passport")
+	_ = httpport.NewUserHander(uc, ur, passportGroup)
 	r.GET("/tab", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "nine",
