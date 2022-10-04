@@ -1,5 +1,6 @@
 package usecase
 
 type UseCase struct {
-	LoginUC LoginUseCase
+	LoginUC  LoginUseCase
+	SignUpUC SignUpUseCase
 }

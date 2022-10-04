@@ -7,14 +7,30 @@ import (
 )
 
 type User struct {
-	ID        int
-	FullName  string
-	Avatar    string
-	Email     string
-	Password  string
-	DeletedAt time.Time
+	ID        int    `json:"id"`
+	FullName  string `gorm:"size:255;not null" json:"full_name"`
+	Avatar    string `json:"avatar"`
+	Email     string `gorm:"size:255;not null;unique" json:"email"`
+	Password  string `gorm:"size:255;not null;" json:"password"`
+	DeletedAt *time.Time
 	CreateAt  time.Time
 	UpdatedAt time.Time
+}
+
+func (u *User) GetID() int {
+	return u.ID
+}
+
+func (u *User) GetFullName() string {
+	return u.FullName
+}
+
+func (u *User) GetAvatarURL() string {
+	return u.Avatar
+}
+
+func (u *User) GetEmail() string {
+	return u.Email
 }
 
 func (u *User) HashPassword() error {

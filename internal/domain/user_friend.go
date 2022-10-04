@@ -2,10 +2,10 @@ package domain
 
 import "time"
 
-type User_Friend struct {
+type UserFriend struct {
 	ID        int
 	UserID    int
-	FriendId  int
+	FriendID  int
 	DeletedAt time.Time
 	CreateAt  time.Time
 	UpdatedAt time.Time

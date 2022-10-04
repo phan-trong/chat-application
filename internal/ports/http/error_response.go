@@ -1,6 +1,6 @@
 package http
 
 type ErrorResponse struct {
-	Code    int
-	Message string
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
