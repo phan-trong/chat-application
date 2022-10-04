@@ -1,6 +1,6 @@
 package http
 
 type SuccessResponse struct {
-	Code int
-	Data map[string]interface{}
+	Code int                    `json:"code"`
+	Data map[string]interface{} `json:"data"`
 }

@@ -1,8 +1,12 @@
 package usecase
 
 import (
+	"chat_application/internal/adapter/middlewares"
+	"chat_application/internal/adapter/services"
 	"chat_application/internal/domain"
 	"context"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginUseCase interface {
@@ -17,20 +21,31 @@ type LoginRequest struct {
 var _ LoginUseCase = &loginUseCase{}
 
 type loginUseCase struct {
-	_userRepo domain.UserRepository
+	userRepo domain.UserRepository
 }
 
 func (lg *loginUseCase) Handle(ctx context.Context, req *LoginRequest) (string, error) {
-	_, err := lg._userRepo.FindOneByEmail(ctx, req.Email)
+	user, err := lg.userRepo.FindOneByEmail(ctx, req.Email)
 	if err != nil {
 		return "", err
 	}
 
-	return "abccccc", nil
+	err = middlewares.VerifyPassword(req.Password, user.Password)
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return "", err
+	}
+
+	token, err := services.CreateJWTToken(user)
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
 
-func NewLoginUseCase(userRepo domain.UserRepository) *loginUseCase {
+func NewLoginUseCase(_userRepo domain.UserRepository) *loginUseCase {
 	return &loginUseCase{
-		_userRepo: userRepo,
+		userRepo: _userRepo,
 	}
 }

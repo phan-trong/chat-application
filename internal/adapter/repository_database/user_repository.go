@@ -66,7 +66,9 @@ func (uRepo *userRepository) DeleteUser(ctx context.Context, id int) error {
 		return domain.ErrUserNotFound
 	}
 
-	user.DeletedAt = time.Now()
+	currentTime := time.Now()
+
+	user.DeletedAt = &currentTime
 
 	if result := uRepo.DB.Save(&user); result.Error != nil {
 		return result.Error
