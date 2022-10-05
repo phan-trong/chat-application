@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 )
 
 func Test_Login_UseCase(t *testing.T) {
@@ -20,7 +21,7 @@ func Test_Login_UseCase(t *testing.T) {
 	email := "trongpq@beat.vn"
 
 	mockUserRepo.EXPECT().FindOneByEmail(gomock.Any(), email).Return(&domain.User{
-		ID:    0,
+		ID:    uuid.New(),
 		Email: "trongpq@beat.vn",
 	}, nil)
 
