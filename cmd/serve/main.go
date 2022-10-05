@@ -38,7 +38,7 @@ func main() {
 	r.Static("/test_chat", "./public")
 
 	// Run server Websocket
-	wsServer := websocket.NewWebsocketServer()
+	wsServer := websocket.NewWebsocketServer(ur)
 	go wsServer.Run()
 
 	// Handle Socket Webserver Request

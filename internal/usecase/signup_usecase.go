@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type SignUpUseCase interface {
@@ -26,6 +28,7 @@ func (su *signupUsecase) Handle(ctx context.Context, req *SignUpRequest) error {
 
 	if isExists != nil {
 		user := &domain.User{
+			ID:        uuid.New(),
 			FullName:  req.FullName,
 			Email:     req.Email,
 			Password:  req.Password,

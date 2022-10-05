@@ -1,11 +1,15 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Room struct {
-	ID         int
-	RoomName   string
-	RoomAuthor int // User Id created room
+	ID         uuid.UUID `json:"id"`
+	RoomName   string    `json:"room_name"`
+	RoomAuthor int       // User Id created room
 	DeletedAt  time.Time
 	CreateAt   time.Time
 	UpdatedAt  time.Time

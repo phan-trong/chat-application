@@ -27,7 +27,7 @@ func (uRepo *userRepository) FindOneByEmail(ctx context.Context, email string) (
 	return &user, nil
 }
 
-func (uRepo *userRepository) FindOneById(ctx context.Context, id int) (*domain.User, error) {
+func (uRepo *userRepository) FindOneById(ctx context.Context, id string) (*domain.User, error) {
 	var user domain.User
 	if result := uRepo.DB.Where("id = ?", id).First(&user); result.Error != nil {
 		return nil, domain.ErrUserNotFound
@@ -43,7 +43,7 @@ func (uRepo *userRepository) CreateUser(ctx context.Context, user *domain.User) 
 	return nil
 }
 
-func (uRepo *userRepository) UpdateUser(ctx context.Context, id int, u *domain.User) error {
+func (uRepo *userRepository) UpdateUser(ctx context.Context, id string, u *domain.User) error {
 	user, err := uRepo.FindOneById(ctx, id)
 
 	if err != nil {
@@ -59,7 +59,7 @@ func (uRepo *userRepository) UpdateUser(ctx context.Context, id int, u *domain.U
 	return nil
 }
 
-func (uRepo *userRepository) DeleteUser(ctx context.Context, id int) error {
+func (uRepo *userRepository) DeleteUser(ctx context.Context, id string) error {
 	user, err := uRepo.FindOneById(ctx, id)
 
 	if err != nil {
