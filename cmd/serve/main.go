@@ -42,7 +42,7 @@ func main() {
 	go wsServer.Run()
 
 	// Handle Socket Webserver Request
-	r.GET("/ws", func(c *gin.Context) {
+	r.GET("/ws", middlewares.JwtAuthMiddleware(), func(c *gin.Context) {
 		websocket.ServeWs(wsServer, c)
 	})
 
