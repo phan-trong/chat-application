@@ -6,6 +6,7 @@ import (
 )
 
 const SendMessageAction = "send-message"
+const CreateRoomAction = "create-room"
 const JoinRoomAction = "join-room"
 const LeaveRoomAction = "leave-room"
 const UserJoinedAction = "user-join"

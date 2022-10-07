@@ -196,7 +196,6 @@ func (client *Client) handleJoinRoomMessage(message MessageChat) {
 	roomName := message.Message
 
 	client.joinRoom(roomName, nil)
-
 }
 
 func (client *Client) handleLeaveRoomMessage(message MessageChat) {
@@ -232,6 +231,15 @@ func (client *Client) joinRoom(roomName string, sender *Client) {
 	room := client.wsServer.findRoomByName(roomName)
 	if room == nil {
 		room = client.wsServer.createRoom(roomName, sender != nil)
+		messageCreateRoom := &MessageChat{
+			Action: CreateRoomAction,
+			Target: room,
+		}
+		for clientOnlineId := range client.wsServer.clients {
+			if client.ID.String() != clientOnlineId {
+				client.wsServer.clients[clientOnlineId].send <- messageCreateRoom.encode()
+			}
+		}
 	}
 
 	// Don't allow to join private rooms through public room message
