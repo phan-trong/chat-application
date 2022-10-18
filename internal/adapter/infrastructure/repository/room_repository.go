@@ -1,24 +1,23 @@
-package repository_database
+package repository
 
 import (
 	"chat_application/internal/domain"
-	"context"
 	"time"
 
 	"gorm.io/gorm"
 )
 
-type roomRepository struct {
+type RoomRepository struct {
 	DB *gorm.DB
 }
 
-func NewRoomRepository(db *gorm.DB) *roomRepository {
-	return &roomRepository{
+func NewRoomRepository(db *gorm.DB) *RoomRepository {
+	return &RoomRepository{
 		DB: db,
 	}
 }
 
-func (rRepo *roomRepository) FindOneRoom(ctx context.Context, roomId int) (*domain.Room, error) {
+func (rRepo *RoomRepository) Get(roomId int) (*domain.Room, error) {
 	var room domain.Room
 	if result := rRepo.DB.Where("id=?", roomId).First(&room); result.Error != nil {
 		return nil, domain.ErrRoomNotFound
@@ -28,7 +27,7 @@ func (rRepo *roomRepository) FindOneRoom(ctx context.Context, roomId int) (*doma
 
 }
 
-func (rRepo *roomRepository) CreateRoom(ctx context.Context, r *domain.Room) error {
+func (rRepo *RoomRepository) Create(r *domain.Room) error {
 	if result := rRepo.DB.Save(&r); result.Error != nil {
 		return result.Error
 	}
@@ -36,8 +35,8 @@ func (rRepo *roomRepository) CreateRoom(ctx context.Context, r *domain.Room) err
 	return nil
 }
 
-func (rRepo *roomRepository) UpdateRoom(ctx context.Context, roomId int, r *domain.Room) error {
-	room, err := rRepo.FindOneRoom(ctx, roomId)
+func (rRepo *RoomRepository) Update(roomId int, r *domain.Room) error {
+	room, err := rRepo.Get(roomId)
 
 	if err != nil {
 		return domain.ErrRoomNotFound
@@ -52,8 +51,8 @@ func (rRepo *roomRepository) UpdateRoom(ctx context.Context, roomId int, r *doma
 	return nil
 }
 
-func (rRepo *roomRepository) DeleteRoom(ctx context.Context, roomId int) error {
-	room, err := rRepo.FindOneRoom(ctx, roomId)
+func (rRepo *RoomRepository) Delete(roomId int) error {
+	room, err := rRepo.Get(roomId)
 
 	if err != nil {
 		return domain.ErrRoomNotFound

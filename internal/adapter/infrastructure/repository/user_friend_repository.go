@@ -1,4 +1,4 @@
-package repository_database
+package repository
 
 import (
 	"chat_application/internal/domain"

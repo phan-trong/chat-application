@@ -13,9 +13,9 @@ type User struct {
 	Avatar    string    `json:"avatar"`
 	Email     string    `gorm:"size:255;not null;unique" json:"email"`
 	Password  string    `gorm:"size:255;not null;" json:"password"`
-	DeletedAt *time.Time
-	CreateAt  time.Time
+	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 func (u *User) GetID() uuid.UUID {
@@ -34,8 +34,38 @@ func (u *User) GetEmail() string {
 	return u.Email
 }
 
-func (u *User) HashPassword() error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+//NewUser create a new user
+func NewUser(name, email, password string) (*User, error) {
+	u := &User{
+		ID:        NewID(),
+		FullName:  name,
+		Avatar:    name,
+		Email:     email,
+		CreatedAt: time.Now(),
+	}
+	err := u.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+
+	err = u.Validate()
+	if err != nil {
+		return nil, ErrInvalidEntity
+	}
+	return u, nil
+}
+
+//Validate validate data
+func (u *User) Validate() error {
+	if u.Email == "" || u.FullName == "" || u.Password == "" {
+		return ErrInvalidEntity
+	}
+
+	return nil
+}
+
+func (u *User) HashPassword(password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}

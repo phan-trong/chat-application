@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"chat_application/internal/domain"
+	"chat_application/internal/usecase/user"
 	"log"
 )
 
@@ -11,11 +11,11 @@ type WsServer struct {
 	unregister chan *Client
 	broadcast  chan []byte
 	rooms      map[*RoomChat]bool
-	userRepo   domain.UserRepository
+	userRepo   user.Repository
 }
 
 // NewWebsocketServer creates a new WsServer type
-func NewWebsocketServer(userRepo domain.UserRepository) *WsServer {
+func NewWebsocketServer(userRepo user.Repository) *WsServer {
 	return &WsServer{
 		clients:    make(map[string]*Client),
 		register:   make(chan *Client),
