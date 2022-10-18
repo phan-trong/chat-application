@@ -1,7 +1,9 @@
 package websocket
 
 import (
-	"chat_application/internal/adapter/middlewares"
+	"chat_application/internal/domain"
+	"chat_application/internal/ports/middlewares"
+	"chat_application/internal/usecase/message"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -43,22 +45,24 @@ var (
 // Client represents the websocket client at the server
 type Client struct {
 	// The actual websocket connection.
-	ID       uuid.UUID `json:"id"`
-	Name     string
-	conn     *websocket.Conn
-	wsServer *WsServer
-	send     chan []byte
-	rooms    map[*RoomChat]bool
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	conn        *websocket.Conn
+	wsServer    *WsServer
+	send        chan []byte
+	rooms       map[*RoomChat]bool
+	messageRepo message.Repository
 }
 
-func newClient(conn *websocket.Conn, wsServer *WsServer, userId uuid.UUID, fullName string) *Client {
+func newClient(conn *websocket.Conn, wsServer *WsServer, messageRepo message.Repository, userId uuid.UUID, fullName string) *Client {
 	return &Client{
-		ID:       userId,
-		Name:     fullName,
-		conn:     conn,
-		wsServer: wsServer,
-		send:     make(chan []byte, 256),
-		rooms:    make(map[*RoomChat]bool),
+		ID:          userId,
+		Name:        fullName,
+		conn:        conn,
+		wsServer:    wsServer,
+		send:        make(chan []byte, 256),
+		rooms:       make(map[*RoomChat]bool),
+		messageRepo: messageRepo,
 	}
 }
 
@@ -139,7 +143,7 @@ func (client *Client) disconnect() {
 }
 
 // ServeWs handles websocket requests from clients requests.
-func ServeWs(wsServer *WsServer, c *gin.Context) {
+func ServeWs(wsServer *WsServer, c *gin.Context, mRepo message.Repository) {
 	userData := middlewares.GetCurrentUser(c)
 	userId, ok := c.Request.URL.Query()["id"]
 
@@ -154,7 +158,7 @@ func ServeWs(wsServer *WsServer, c *gin.Context) {
 		return
 	}
 
-	client := newClient(conn, wsServer, userData.ID, userData.FullName)
+	client := newClient(conn, wsServer, mRepo, userData.ID, userData.FullName)
 	fmt.Println("New Client joined the hub!")
 	fmt.Println(client)
 	// Receive Message from socket
@@ -176,7 +180,18 @@ func (client *Client) handleNewMessage(jsonMessage []byte) {
 
 	switch message.Action {
 	case SendMessageAction:
+
 		roomID := message.Target.GetId()
+		newMsg, err := domain.NewMessage(message.Sender.ID, message.Target.ID, message.Message)
+		if err != nil {
+			log.Printf("Can not Create New Message %s", err)
+			return
+		}
+		client.messageRepo.Create(newMsg)
+		if err != nil {
+			log.Printf("Can not Save New Message %s", err)
+			return
+		}
 		if room := client.wsServer.findRoomByID(roomID); room != nil {
 			room.broadcast <- &message
 		}

@@ -1,19 +1,48 @@
 package domain
 
-import "time"
+import (
+	"time"
 
-/*
- *	If message Peer to Peer set SenderId and ReceiverId
- *	If message send to channel set SenderId and RoomId
- */
+	"github.com/google/uuid"
+)
 
 type Message struct {
-	ID         int
-	SenderId   int
-	ReceiverId int
-	RoomId     int
+	ID         uuid.UUID
+	Action     string
+	SenderId   uuid.UUID
+	RoomId     uuid.UUID
 	Message    string
 	DeletedAt  time.Time
-	CreateAt   time.Time
-	UpdatedAt  time.Time
+	CreatedAt  time.Time
+	UpdateddAt time.Time
+}
+
+type Target struct {
+}
+
+//NewMessage create a new Message
+func NewMessage(senderId, roomId uuid.UUID, message string) (*Message, error) {
+	u := &Message{
+		ID:        NewID(),
+		SenderId:  senderId,
+		RoomId:    roomId,
+		Message:   message,
+		CreatedAt: time.Now(),
+	}
+
+	err := u.Validate()
+	if err != nil {
+		return nil, ErrInvalidEntity
+	}
+
+	return u, nil
+}
+
+//Validate validate data
+func (m *Message) Validate() error {
+	if m.Message == "" {
+		return ErrInvalidEntity
+	}
+
+	return nil
 }
