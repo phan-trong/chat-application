@@ -51,7 +51,7 @@ func ExtractToken(c *gin.Context) string {
 }
 
 func VerifyPassword(password, hashedPassword string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return bcrypt.CompareHashAndPassword([]byte(password), []byte(hashedPassword))
 }
 
 func GetCurrentUser(ctx context.Context) *domain.User {

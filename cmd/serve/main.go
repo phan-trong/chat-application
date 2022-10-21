@@ -31,31 +31,34 @@ func main() {
 	mRepo := repository.NewMessageRepository(database)
 
 	r := gin.Default()
-	r.Use(middlewares.CORSMiddleware())
 	r.Use(middlewares.Logger())
-	r.Static("/images", "./public/avatars")
-	r.Static("/test_chat", "./public")
+	r.Use(middlewares.CORSMiddleware())
+
+	api := r.Group("/api")
+	api.Static("/images", "./public/avatars")
+	api.Static("/test_chat", "./public")
 
 	// Run server Websocket
 	wsServer := websocket.NewWebsocketServer(uRepo)
 	go wsServer.Run()
 
 	// Handle Socket Webserver Request
-	r.GET("/ws", middlewares.JwtAuthMiddleware(authService), func(c *gin.Context) {
+	api.GET("/ws", middlewares.JwtAuthMiddleware(authService), func(c *gin.Context) {
 		websocket.ServeWs(wsServer, c, mRepo)
 	})
 
 	// Set Max File Size Upload
 	r.MaxMultipartMemory = 10 << 20 // 10 MiB
 
-	passportGroup := r.Group("/v1/passport")
+	passportGroup := api.Group("/v1/passport")
 	_ = http.NewUserHander(passportGroup, uService, authService)
-	chatGroup := r.Group("/v1/chat-application")
+	chatGroup := api.Group("/v1/chat-application")
 	_ = http.NewMessageHander(chatGroup, uService)
-	r.GET("/tab", func(c *gin.Context) {
+	api.GET("/tab", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "nine",
 		})
 	})
+
 	r.Run()
 }
